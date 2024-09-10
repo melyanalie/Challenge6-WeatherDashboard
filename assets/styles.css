@@ -1,62 +1,60 @@
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
-    color: #333;
-    margin: 0;
-    padding: 20px;
+    font-family: 'Arial', sans-serif;
 }
 
 header {
+    background-color: #3a04ce;
+    color: #eeeeee;
+    padding: 20px;
     text-align: center;
-    margin-bottom: 20px;
 }
 
 #search-section {
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-#city-input {
-    padding: 10px;
-    width: 200px;
-    margin-right: 10px;
+    background-color: lightsteelblue;
+    padding: 20px;
+    border-radius: 5px;
 }
 
 #search-btn {
-    padding: 10px 20px;
+    margin-top: 10px;
+    width: 100%;
+    color: rgba(255, 255, 255, 0.914);
 }
 
-#search-history {
-    list-style-type: none;
-    padding: 0;
+#search-history button {
+    width: 100%;
+    margin-top: 5px;
+    background-color: lightsteelblue;
+}
+
+#current-weather {
     margin-top: 20px;
-    text-align: left;
-}
-
-#search-history li {
     padding: 10px;
-    background-color: #ddd;
-    margin-bottom: 5px;
-    cursor: pointer;
-}
-
-#current-weather, #forecast {
-    margin-top: 20px;
-}
-
-.weather-card {
-    padding: 20px;
-    background-color: #fff;
-    margin-bottom: 10px;
+    background-color: #b8c7f4;
     border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    font-weight: bold;
+    color: darkblue;
 }
 
-.weather-card h2, .weather-card h3 {
-    margin: 0 0 10px;
+#forecast {
+    font-size: 14pt;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
 }
 
-.weather-icon {
-    width: 50px;
-    height: 50px;
+.forecast-card {
+    color: #ffffff;
+    background-color: #0e03a3;
+    font-size: 12pt;
+    padding: 7px;
+    border-radius: 5px;
+    box-shadow: 2px 2px 10px rgba(45, 34, 164, 0.882);
+    text-align: center;
+    flex: 1;
+    min-width: 150px;
+}
+
+h3 {
+    margin-top: 20px;
 }

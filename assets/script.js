@@ -1,77 +1,123 @@
-// Initialize variables
-const apiKey = 'your_api_key_here'; // Replace with your OpenWeatherMap API key
+const apiKey = '18dc9a2b0aae2b8b411921e378b652f8';
+
 const searchBtn = document.getElementById('search-btn');
 const cityInput = document.getElementById('city-input');
 const searchHistory = document.getElementById('search-history');
 const currentWeatherSection = document.getElementById('current-weather');
 const forecastSection = document.getElementById('forecast');
 
-// Event listener for search button
-searchBtn.addEventListener('click', () => {
+searchBtn.addEventListener('click', function () {
     const city = cityInput.value.trim();
     if (city) {
         getWeatherData(city);
-        addToSearchHistory(city);
+        addCityToSearchHistory(city);
         cityInput.value = '';
     }
 });
 
-// Function to get weather data
 function getWeatherData(city) {
-    const currentWeatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
-    const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`;
+    const currentWeatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=imperial`;
 
-    // Fetch current weather
     fetch(currentWeatherUrl)
         .then(response => response.json())
-        .then(data => displayCurrentWeather(data))
-        .catch(error => console.error('Error fetching current weather:', error));
+        .then(data => {
+            displayCurrentWeather(data);
+            getForecastData(city);
+        })
+        .catch(error => {
+            console.error('Error fetching current weather:', error);
+            alert('City not found. Please try again.');
+        });
+}
 
-    // Fetch forecast
+function getForecastData(city) {
+    const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=imperial`;
+
     fetch(forecastUrl)
         .then(response => response.json())
-        .then(data => displayForecast(data))
-        .catch(error => console.error('Error fetching forecast:', error));
+        .then(data => {
+            displayForecast(data);
+        })
+        .catch(error => console.error('Error fetching forecast data:', error));
 }
 
-// Function to display current weather
 function displayCurrentWeather(data) {
-    currentWeatherSection.innerHTML = `
-        <div class="weather-card">
-            <h2>${data.name} (${new Date().toLocaleDateString()})</h2>
-            <img src="http://openweathermap.org/img/wn/${data.weather[0].icon}.png" alt="${data.weather[0].description}" class="weather-icon">
-            <p>Temperature: ${data.main.temp} °C</p>
-            <p>Humidity: ${data.main.humidity}%</p>
-            <p>Wind Speed: ${data.wind.speed} m/s</p>
-        </div>
+    const weatherIcon = `http://openweathermap.org/img/wn/${data.weather[0].icon}.png`;
+    const currentWeatherHtml = `
+        <h3>${data.name} (${new Date().toLocaleDateString()}) <img src="${weatherIcon}" alt="${data.weather[0].description}" class="weather-icon"></h3>
+        <p>Temp: ${data.main.temp} °F</p>
+        <p>Wind: ${data.wind.speed} MPH</p>
+        <p>Humidity: ${data.main.humidity}%</p>
     `;
+
+    currentWeatherSection.innerHTML = currentWeatherHtml;
 }
 
-// Function to display 5-day forecast
 function displayForecast(data) {
-    forecastSection.innerHTML = '<h3>5-Day Forecast:</h3>';
-    const forecastDays = data.list.filter(forecast => forecast.dt_txt.includes('12:00:00'));
+    forecastSection.innerHTML = '';
+    const forecastDays = data.list.filter(item => item.dt_txt.includes('12:00:00'));
 
-    forecastDays.forEach(forecast => {
-        const date = new Date(forecast.dt_txt).toLocaleDateString();
-        forecastSection.innerHTML += `
-            <div class="weather-card">
-                <h3>${date}</h3>
-                <img src="http://openweathermap.org/img/wn/${forecast.weather[0].icon}.png" alt="${forecast.weather[0].description}" class="weather-icon">
-                <p>Temperature: ${forecast.main.temp} °C</p>
-                <p>Humidity: ${forecast.main.humidity}%</p>
-                <p>Wind Speed: ${forecast.wind.speed} m/s</p>
+    forecastDays.forEach(day => {
+        const weatherIcon = `http://openweathermap.org/img/wn/${day.weather[0].icon}.png`;
+        const forecastHtml = `
+            <div class="forecast-card">
+                <h4>${new Date(day.dt_txt).toLocaleDateString()}</h4>
+                <img src="${weatherIcon}" alt="${day.weather[0].description}">
+                <p>Temp: ${day.main.temp} °F</p>
+                <p>Wind: ${day.wind.speed} MPH</p>
+                <p>Humidity: ${day.main.humidity}%</p>
             </div>
         `;
+        forecastSection.innerHTML += forecastHtml;
     });
 }
 
-// Function to add city to search history
-function addToSearchHistory(city) {
-    const historyItem = document.createElement('li');
+function addCityToSearchHistory(city) {
+    const historyItem = document.createElement('button');
     historyItem.textContent = city;
+    historyItem.classList.add('btn', 'btn-secondary', 'mt-2');
     historyItem.addEventListener('click', () => {
         getWeatherData(city);
     });
     searchHistory.appendChild(historyItem);
 }
+
+function addCityToSearchHistory(city) {
+    const historyItem = document.createElement('li');
+    historyItem.textContent = city;
+    historyItem.classList.add('list-group-item', 'list-group-item-action');
+
+    historyItem.addEventListener('click', function () {
+        getWeatherData(city);
+    });
+
+    searchHistory.appendChild(historyItem);
+
+    saveCityToLocalStorage(city);
+}
+
+function saveCityToLocalStorage(city) {
+    let history = JSON.parse(localStorage.getItem('cityHistory')) || [];
+    if (!history.includes(city)) {
+        history.push(city);
+        localStorage.setItem('cityHistory', JSON.stringify(history));
+    }
+}
+
+function loadSearchHistory() {
+    let history = JSON.parse(localStorage.getItem('cityHistory')) || [];
+
+    history.forEach(city => {
+        const historyItem = document.createElement('li');
+        historyItem.textContent = city;
+        historyItem.classList.add('list-group-item', 'list-group-item-action');
+
+        historyItem.addEventListener('click', function () {
+            getWeatherData(city);
+        });
+
+        searchHistory.appendChild(historyItem);
+    });
+}
+
+window.addEventListener('load', loadSearchHistory);
